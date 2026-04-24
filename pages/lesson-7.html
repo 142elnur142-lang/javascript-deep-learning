@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 7: Callbacks - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 7
+            </div>
+            <h1>Callbacks - Обратные вызовы</h1>
+            <p>Обратные вызовы и callback hell</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Что такое Callback?</h2>
+            <p>Callback это функция передаваемая как аргумент для асинхронного выполнения.</p>
+            <div class="code-example">
+                <pre><code>function fetchData(callback) {
+    setTimeout(() => callback('data'), 1000);
+}
+
+fetchData((result) => console.log(result));</code></pre>
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="lesson-6.html">← Предыдущая</a>
+            <a href="lesson-8.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>

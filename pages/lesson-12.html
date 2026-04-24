@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 12: Arrow Functions - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 12
+            </div>
+            <h1>Arrow Functions - Стрелочные функции</h1>
+            <p>Синтаксис стрелочных функций и особенности</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Синтаксис</h2>
+            <div class="code-example">
+                <pre><code>const add = (a, b) => a + b;
+const greet = name => `Hello ${name}`;
+const random = () => Math.random();
+
+console.log(add(2, 3)); // 5</code></pre>
+            </div>
+            
+            <h2>Важное свойство: this</h2>
+            <div class="code-example">
+                <pre><code>const obj = {
+    value: 42,
+    regularFunc: function() { return this.value; },
+    arrowFunc: () => this.value
+};
+
+console.log(obj.regularFunc()); // 42
+console.log(obj.arrowFunc()); // undefined</code></pre>
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="lesson-11.html">← Предыдущая</a>
+            <a href="lesson-13.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>

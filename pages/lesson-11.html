@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 11: Spread Operator - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 11
+            </div>
+            <h1>Spread Operator (...)</h1>
+            <p>Оператор распространения и его применение</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Spread в массивах</h2>
+            <div class="code-example">
+                <pre><code>const arr1 = [1, 2, 3];
+const arr2 = [...arr1, 4, 5];
+console.log(arr2); // [1, 2, 3, 4, 5]</code></pre>
+            </div>
+            
+            <h2>Spread в объектах</h2>
+            <div class="code-example">
+                <pre><code>const obj1 = { a: 1, b: 2 };
+const obj2 = { ...obj1, c: 3 };
+console.log(obj2); // { a: 1, b: 2, c: 3 }</code></pre>
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="lesson-10.html">← Предыдущая</a>
+            <a href="lesson-12.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>

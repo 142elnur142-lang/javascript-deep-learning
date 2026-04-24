@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 9: Scope Chain - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 9
+            </div>
+            <h1>Scope Chain - Цепочка областей</h1>
+            <p>Как JavaScript ищет переменные в разных областях видимости</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Что такое Scope?</h2>
+            <p>Scope определяет где в коде доступна переменная.</p>
+            <div class="code-example">
+                <pre><code>const global = 'global';
+
+function outer() {
+    const outer = 'outer';
+    
+    function inner() {
+        const inner = 'inner';
+        console.log(inner, outer, global);
+    }
+    
+    inner();
+}
+
+outer();</code></pre>
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="lesson-8.html">← Предыдущая</a>
+            <a href="lesson-10.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>
