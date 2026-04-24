@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 1: Closures (Замыкания) - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 1
+            </div>
+            <h1>Closures (Замыкания)</h1>
+            <p>Понимание замыканий, области видимости и лексического окружения</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Что такое замыкание?</h2>
+            <p>Замыкание (closure) - это функция, которая имеет доступ к переменным из своего лексического окружения, даже после того, как внешняя функция завершила свое выполнение.</p>
+
+            <h3>Основной пример</h3>
+            <div class="code-example">
+                <pre><code>function outer() {
+    const message = 'Hello from outer';
+    
+    function inner() {
+        console.log(message); // Доступ к переменной из outer
+    }
+    
+    return inner;
+}
+
+const myFunction = outer();
+myFunction(); // 'Hello from outer'</code></pre>
+            </div>
+
+            <h2>Как работают замыкания?</h2>
+            <p>Замыкания работают благодаря лексическому окружению. Каждая функция сохраняет ссылку на переменные, которые были доступны при её создании.</p>
+
+            <h3>Счетчик с замыканием</h3>
+            <div class="code-example">
+                <pre><code>function createCounter() {
+    let count = 0; // Приватная переменная
+    
+    return {
+        increment: function() {
+            count++;
+            return count;
+        },
+        decrement: function() {
+            count--;
+            return count;
+        },
+        getCount: function() {
+            return count;
+        }
+    };
+}
+
+const counter = createCounter();
+console.log(counter.increment()); // 1
+console.log(counter.increment()); // 2
+console.log(counter.decrement()); // 1</code></pre>
+            </div>
+
+            <div class="note">
+                <strong>⚠️ Важно:</strong> Переменная `count` недоступна снаружи - это приватная переменная. Это основной паттерн инкапсуляции в JavaScript.
+            </div>
+
+            <h2>Замыкания в циклах</h2>
+            <p>Частая ошибка при работе с замыканиями - неправильное использование переменных в циклах.</p>
+
+            <h3>Проблема</h3>
+            <div class="code-example">
+                <pre><code>const functions = [];
+for (var i = 0; i < 3; i++) {
+    functions.push(function() {
+        console.log(i); // Проблема!
+    });
+}
+
+functions[0](); // 3 (не 0!)
+functions[1](); // 3 (не 1!)
+functions[2](); // 3 (не 2!)</code></pre>
+            </div>
+
+            <h3>Решение 1: Использовать let</h3>
+            <div class="code-example">
+                <pre><code>const functions = [];
+for (let i = 0; i < 3; i++) {
+    functions.push(function() {
+        console.log(i);
+    });
+}
+
+functions[0](); // 0
+functions[1](); // 1
+functions[2](); // 2</code></pre>
+            </div>
+
+            <h3>Решение 2: IIFE (Immediately Invoked Function Expression)</h3>
+            <div class="code-example">
+                <pre><code>const functions = [];
+for (var i = 0; i < 3; i++) {
+    functions.push((function(j) {
+        return function() {
+            console.log(j);
+        };
+    })(i));
+}
+
+functions[0](); // 0
+functions[1](); // 1
+functions[2](); // 2</code></pre>
+            </div>
+
+            <h2>Практические применения</h2>
+            
+            <h3>1. Factory функции</h3>
+            <div class="code-example">
+                <pre><code>function makeAdder(x) {
+    return function(y) {
+        return x + y;
+    };
+}
+
+const add5 = makeAdder(5);
+const add10 = makeAdder(10);
+
+console.log(add5(3));  // 8
+console.log(add10(3)); // 13</code></pre>
+            </div>
+
+            <h3>2. Частичное применение (Partial Application)</h3>
+            <div class="code-example">
+                <pre><code>function multiply(a, b, c) {
+    return a * b * c;
+}
+
+function partial(fn, ...args) {
+    return function(...nextArgs) {
+        return fn(...args, ...nextArgs);
+    };
+}
+
+const multiplyBy2 = partial(multiply, 2);
+const multiplyBy2And3 = partial(multiplyBy2, 3);
+
+console.log(multiplyBy2And3(4)); // 24</code></pre>
+            </div>
+
+            <h3>3. Модульный паттерн</h3>
+            <div class="code-example">
+                <pre><code>const calculator = (function() {
+    let result = 0;
+    
+    return {
+        add: function(x) { result += x; return result; },
+        subtract: function(x) { result -= x; return result; },
+        multiply: function(x) { result *= x; return result; },
+        getResult: function() { return result; },
+        reset: function() { result = 0; }
+    };
+})();
+
+console.log(calculator.add(5));      // 5
+console.log(calculator.multiply(2)); // 10
+console.log(calculator.subtract(3)); // 7</code></pre>
+            </div>
+
+            <h2>Производительность и утечки памяти</h2>
+            <p>Замыкания сохраняют ссылки на переменные в памяти. Это может привести к утечкам памяти, если не управлять ими правильно.</p>
+
+            <div class="danger">
+                <strong>⚡ Опасность:</strong> Большое количество замыканий может потребить много памяти. Всегда очищайте ненужные ссылки.
+            </div>
+
+            <h2>Упражнения</h2>
+            <div class="exercise">
+                <strong>Упражнение 1:</strong> Создайте функцию `createMultiplier(n)`, которая возвращает функцию, умножающую аргумент на `n`.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 2:</strong> Создайте функцию для приватного счетчика с методами: `increment()`, `decrement()`, `getValue()`.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 3:</strong> Реализуйте функцию `memoize(fn)`, которая кэширует результаты функции используя замыкания.
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="../index.html" class="disabled">← Предыдущая</a>
+            <a href="lesson-2.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>

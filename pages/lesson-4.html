@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 4: Event Loop - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 4
+            </div>
+            <h1>Event Loop (Цикл событий)</h1>
+            <p>Как работает event loop в JavaScript</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Что такое Event Loop?</h2>
+            <p>Event Loop - это механизм, который позволяет JavaScript выполнять асинхронный код несмотря на то, что язык является однопоточным.</p>
+
+            <h2>Однопоточная природа JavaScript</h2>
+            <div class="code-example">
+                <pre><code>console.log('Start');
+
+setTimeout(() => {
+    console.log('Timeout');
+}, 0);
+
+console.log('End');
+
+// Вывод:
+// Start
+// End
+// Timeout</code></pre>
+            </div>
+
+            <p>Даже хотя setTimeout установлен на 0, он выполняется ПОСЛЕ синхронного кода. Почему?</p>
+
+            <h2>Компоненты Event Loop</h2>
+            
+            <h3>1. Call Stack (Стек вызовов)</h3>
+            <p>Содержит код, который в данный момент выполняется.</p>
+
+            <div class="code-example">
+                <pre><code>function a() {
+    b();
+}
+
+function b() {
+    c();
+}
+
+function c() {
+    console.log('c');
+}
+
+a();
+// Стек: a() → b() → c() → console.log → (пусто)</code></pre>
+            </div>
+
+            <h3>2. Web APIs</h3>
+            <p>Браузер предоставляет API (setTimeout, fetch, etc.), которые выполняются отдельно от JavaScript.</p>
+
+            <h3>3. Callback Queue (Очередь обратных вызовов)</h3>
+            <p>Содержит функции, готовые к выполнению.</p>
+
+            <h3>4. Microtask Queue (Очередь микрозадач)</h3>
+            <p>Приоритетнее Callback Queue. Содержит: Promise callbacks, MutationObserver, и т.д.</p>
+
+            <h2>Порядок выполнения</h2>
+            <div class="code-example">
+                <pre><code>console.log('1. Start');
+
+Promise.resolve()
+    .then(() => console.log('2. Promise (Microtask)'));
+
+setTimeout(() => {
+    console.log('3. setTimeout (Macrotask)');
+}, 0);
+
+console.log('4. End');
+
+// Вывод:
+// 1. Start
+// 4. End
+// 2. Promise (Microtask)
+// 3. setTimeout (Macrotask)</code></pre>
+            </div>
+
+            <div class="note">
+                <strong>⚠️ Важно:</strong> Microtasks выполняются ДО Macrotasks!
+            </div>
+
+            <h2>Микротаски vs Макротаски</h2>
+            
+            <h3>Микротаски (Microtasks)</h3>
+            <div class="code-example">
+                <pre><code>// Microtasks:
+// - Promise.then/catch/finally
+// - MutationObserver
+// - queueMicrotask()
+// - process.nextTick() (Node.js)
+
+Promise.resolve()
+    .then(() => console.log('Microtask 1'))
+    .then(() => console.log('Microtask 2'));</code></pre>
+            </div>
+
+            <h3>Макротаски (Macrotasks)</h3>
+            <div class="code-example">
+                <pre><code>// Macrotasks:
+// - setTimeout
+// - setInterval
+// - setImmediate (Node.js)
+// - requestAnimationFrame
+// - I/O операции
+
+setTimeout(() => console.log('Macrotask 1'), 0);
+setTimeout(() => console.log('Macrotask 2'), 0);</code></pre>
+            </div>
+
+            <h2>Полный пример с объяснением</h2>
+            <div class="code-example">
+                <pre><code>console.log('1');
+
+setTimeout(() => {
+    console.log('2'); // Macrotask
+}, 0);
+
+Promise.resolve()
+    .then(() => {
+        console.log('3'); // Microtask
+        setTimeout(() => {
+            console.log('4'); // Macrotask
+        }, 0);
+    })
+    .then(() => {
+        console.log('5'); // Microtask
+    });
+
+console.log('6');
+
+// Вывод:
+// 1 (синхронный)
+// 6 (синхронный)
+// 3 (microtask 1)
+// 5 (microtask 2)
+// 2 (macrotask 1)
+// 4 (macrotask 2)</code></pre>
+            </div>
+
+            <h2>Визуализация Event Loop</h2>
+            <div class="code-example">
+                <pre><code>// Event Loop цикл:
+// 1. Выполнить все синхронный код (Call Stack)
+// 2. Проверить Microtask Queue - выполнить все
+// 3. Проверить Macrotask Queue - выполнить одну
+// 4. Вернуться на шаг 2
+
+// Это означает:
+console.log('A');
+
+setTimeout(() => {
+    console.log('B'); // Первый macrotask
+    Promise.resolve().then(() => {
+        console.log('C'); // Microtask (выполнится ДО следующего macrotask)
+    });
+}, 0);
+
+setTimeout(() => {
+    console.log('D'); // Второй macrotask
+}, 0);
+
+console.log('E');
+
+// Вывод: A, E, B, C, D</code></pre>
+            </div>
+
+            <h2>Практические применения</h2>
+            
+            <h3>1. Гарантированный асинхронный код</h3>
+            <div class="code-example">
+                <pre><code>// Гарантирует выполнение в следующем цикле event loop
+function nextTick(callback) {
+    return Promise.resolve().then(callback);
+}
+
+console.log('A');
+nextTick(() => console.log('B'));
+console.log('C');
+
+// Вывод: A, C, B</code></pre>
+            </div>
+
+            <h3>2. Оптимизация с requestAnimationFrame</h3>
+            <div class="code-example">
+                <pre><code>// requestAnimationFrame выполняется перед рендерингом
+requestAnimationFrame(() => {
+    console.log('Paint');
+});
+
+console.log('Script');
+
+// Вывод: Script, затем Paint (перед рендерингом)</code></pre>
+            </div>
+
+            <h2>Упражнения</h2>
+            <div class="exercise">
+                <strong>Упражнение 1:</strong> Предскажите порядок выполнения кода с смешанными setTimeout и Promise.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 2:</strong> Создайте функцию `schedule` с использованием разных типов задач.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 3:</strong> Напишите функцию для отладки Event Loop (логирование выполнения).
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="lesson-3.html">← Предыдущая</a>
+            <a href="lesson-5.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>

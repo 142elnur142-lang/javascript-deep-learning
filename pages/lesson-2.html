@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 2: Prototypes (Прототипы) - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 2
+            </div>
+            <h1>Prototypes (Прототипы)</h1>
+            <p>Прототипное наследование и цепочка прототипов</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Что такое прототип?</h2>
+            <p>Прототип - это объект, который служит источником для свойств и методов других объектов. В JavaScript каждый объект имеет скрытое свойство [[Prototype]].</p>
+
+            <h3>Основной пример</h3>
+            <div class="code-example">
+                <pre><code>const animal = {
+    speak: function() {
+        console.log('Animal speaks');
+    }
+};
+
+const dog = Object.create(animal);
+dog.name = 'Rex';
+
+dog.speak(); // 'Animal speaks'
+console.log(dog.name); // 'Rex'</code></pre>
+            </div>
+
+            <h2>Цепочка прототипов (Prototype Chain)</h2>
+            <p>JavaScript ищет свойство сначала в самом объекте, затем в его прототипе, затем в прототипе прототипа и так далее.</p>
+
+            <div class="code-example">
+                <pre><code>const parent = { a: 1 };
+const child = Object.create(parent);
+child.b = 2;
+const grandchild = Object.create(child);
+grandchild.c = 3;
+
+console.log(grandchild.a); // 1 (из parent)
+console.log(grandchild.b); // 2 (из child)
+console.log(grandchild.c); // 3 (собственное)</code></pre>
+            </div>
+
+            <h2>Constructor Functions</h2>
+            <p>Традиционный способ создания объектов с прототипом - использование конструктор-функций.</p>
+
+            <h3>Пример конструктор-функции</h3>
+            <div class="code-example">
+                <pre><code>function Person(name, age) {
+    this.name = name;
+    this.age = age;
+}
+
+Person.prototype.greet = function() {
+    console.log(`Hi, I'm ${this.name}`);
+};
+
+const person1 = new Person('Alice', 30);
+const person2 = new Person('Bob', 25);
+
+person1.greet(); // 'Hi, I'm Alice'
+person2.greet(); // 'Hi, I'm Bob'</code></pre>
+            </div>
+
+            <h2>Object.create vs Constructor Functions</h2>
+            
+            <h3>Использование Object.create</h3>
+            <div class="code-example">
+                <pre><code>const animalProto = {
+    speak() {
+        console.log(this.name + ' speaks');
+    }
+};
+
+function createDog(name) {
+    const dog = Object.create(animalProto);
+    dog.name = name;
+    return dog;
+}
+
+const myDog = createDog('Rex');
+myDog.speak(); // 'Rex speaks'</code></pre>
+            </div>
+
+            <h2>Проверка прототипов</h2>
+            <div class="code-example">
+                <pre><code>function Animal() {}
+const dog = new Animal();
+
+// Проверка прототипа
+console.log(dog instanceof Animal); // true
+console.log(Object.getPrototypeOf(dog) === Animal.prototype); // true
+console.log(dog.constructor === Animal); // true
+
+// Проверка собственных свойств
+console.log(dog.hasOwnProperty('name')); // false</code></pre>
+            </div>
+
+            <h2>Наследование через прототипы</h2>
+            <div class="code-example">
+                <pre><code>function Animal(name) {
+    this.name = name;
+}
+
+Animal.prototype.speak = function() {
+    console.log(this.name + ' makes a sound');
+};
+
+function Dog(name, breed) {
+    Animal.call(this, name); // Вызов родительского конструктора
+    this.breed = breed;
+}
+
+// Наследование
+Dog.prototype = Object.create(Animal.prototype);
+Dog.prototype.constructor = Dog;
+
+Dog.prototype.bark = function() {
+    console.log(this.name + ' barks');
+};
+
+const myDog = new Dog('Rex', 'Labrador');
+myDog.speak(); // 'Rex makes a sound'
+myDog.bark();  // 'Rex barks'</code></pre>
+            </div>
+
+            <div class="note">
+                <strong>⚠️ Важно:</strong> При переопределении прототипа всегда восстанавливайте свойство `constructor`.
+            </div>
+
+            <h2>Практические примеры</h2>
+            
+            <h3>Полнофункциональный класс с наследованием</h3>
+            <div class="code-example">
+                <pre><code>function Vehicle(type) {
+    this.type = type;
+}
+
+Vehicle.prototype.getType = function() {
+    return this.type;
+};
+
+function Car(type, doors) {
+    Vehicle.call(this, type);
+    this.doors = doors;
+}
+
+Car.prototype = Object.create(Vehicle.prototype);
+Car.prototype.constructor = Car;
+
+Car.prototype.getInfo = function() {
+    return `${this.getType()} with ${this.doors} doors`;
+};
+
+const myCar = new Car('Sedan', 4);
+console.log(myCar.getInfo()); // 'Sedan with 4 doors'</code></pre>
+            </div>
+
+            <h2>Упражнения</h2>
+            <div class="exercise">
+                <strong>Упражнение 1:</strong> Создайте иерархию классов Shape → Rectangle, используя прототипное наследование.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 2:</strong> Напишите функцию `inherit(Parent, Child)` для упрощения наследования.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 3:</strong> Исследуйте цепочку прототипов объекта при помощи Object.getPrototypeOf.
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="lesson-1.html">← Предыдущая</a>
+            <a href="lesson-3.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>

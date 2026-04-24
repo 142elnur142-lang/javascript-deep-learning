@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 6: Async/Await - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 6
+            </div>
+            <h1>Async/Await</h1>
+            <p>Синтаксис async/await для асинхронного программирования</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Что такое Async/Await?</h2>
+            <p>Async/Await - это синтаксический сахар над Promise, который позволяет писать асинхронный код как синхронный.</p>
+
+            <h2>Основной синтаксис</h2>
+            <div class="code-example">
+                <pre><code>// async функци�� всегда возвращает Promise
+async function fetchData() {
+    return 'data'; // Автоматически обёрнуто в Promise
+}
+
+fetchData().then(data => console.log(data)); // 'data'</code></pre>
+            </div>
+
+            <h2>await - ожидание выполнения</h2>
+            <p>Ключевое слово `await` приостанавливает выполнение функции до разрешения Promise.</p>
+
+            <div class="code-example">
+                <pre><code>async function getUserData() {
+    const response = await fetch('/api/user');
+    const data = await response.json();
+    console.log(data); // Выполнится после получения данных
+    return data;
+}
+
+getUserData()
+    .then(data => console.log('Got user:', data));</code></pre>
+            </div>
+
+            <h2>Обработка ошибок</h2>
+            
+            <h3>try/catch</h3>
+            <div class="code-example">
+                <pre><code>async function fetchUserSafe() {
+    try {
+        const response = await fetch('/api/user');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Failed to fetch user:', error);
+        throw error; // Можно пробросить дальше
+    }
+}
+
+await fetchUserSafe();</code></pre>
+            </div>
+
+            <h3>finally блок</h3>
+            <div class="code-example">
+                <pre><code>async function fetchWithCleanup() {
+    try {
+        const response = await fetch('/data');
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+    } finally {
+        console.log('Request completed');
+    }
+}</code></pre>
+            </div>
+
+            <h2>Параллельное выполнение</h2>
+            
+            <h3>Неправильно - последовательное</h3>
+            <div class="code-example">
+                <pre><code>async function getSequential() {
+    const user = await fetch('/user').then(r => r.json());      // 1 сек
+    const posts = await fetch('/posts').then(r => r.json());    // 1 сек
+    // Всего: 2 секунды
+}</code></pre>
+            </div>
+
+            <h3>Правильно - параллельное</h3>
+            <div class="code-example">
+                <pre><code>async function getParallel() {
+    const [user, posts] = await Promise.all([
+        fetch('/user').then(r => r.json()),
+        fetch('/posts').then(r => r.json())
+    ]);
+    // Всего: 1 секунда
+}
+
+// Или с Promise.race для первого результата
+async function getRaceResult() {
+    const result = await Promise.race([
+        fetch('/fast-api').then(r => r.json()),
+        fetch('/slow-api').then(r => r.json())
+    ]);
+}</code></pre>
+            </div>
+
+            <h2>Async в разных контекстах</h2>
+            
+            <h3>Методы класса</h3>
+            <div class="code-example">
+                <pre><code>class UserService {
+    async getUser(id) {
+        const response = await fetch(`/api/users/${id}`);
+        return response.json();
+    }
+    
+    async getMultipleUsers(ids) {
+        return Promise.all(ids.map(id => this.getUser(id)));
+    }
+}
+
+const service = new UserService();
+await service.getUser(1);</code></pre>
+            </div>
+
+            <h3>Стрелочные функции</h3>
+            <div class="code-example">
+                <pre><code>const fetchData = async () => {
+    const response = await fetch('/data');
+    return response.json();
+};
+
+const numbers = [1, 2, 3];
+const results = await Promise.all(
+    numbers.map(async (num) => {
+        const data = await fetch(`/api/${num}`);
+        return data.json();
+    })
+);</code></pre>
+            </div>
+
+            <h2>Обработка нескольких ошибок</h2>
+            <div class="code-example">
+                <pre><code>async function complexOperation() {
+    try {
+        const [user, settings] = await Promise.all([
+            fetch('/user').then(r => r.json()).catch(e => {
+                console.error('Failed to fetch user:', e);
+                return null;
+            }),
+            fetch('/settings').then(r => r.json()).catch(e => {
+                console.error('Failed to fetch settings:', e);
+                return {};
+            })
+        ]);
+        
+        return { user, settings };
+    } catch (error) {
+        console.error('Operation failed:', error);
+    }
+}</code></pre>
+            </div>
+
+            <h2>Практические примеры</h2>
+            
+            <h3>Загрузка данных с timeout</h3>
+            <div class="code-example">
+                <pre><code>function timeout(ms) {
+    return new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), ms)
+    );
+}
+
+async function fetchWithTimeout(url, ms) {
+    try {
+        return await Promise.race([
+            fetch(url).then(r => r.json()),
+            timeout(ms)
+        ]);
+    } catch (error) {
+        if (error.message === 'Timeout') {
+            console.error(`Request timeout after ${ms}ms`);
+        }
+        throw error;
+    }
+}
+
+await fetchWithTimeout('/data', 5000);</code></pre>
+            </div>
+
+            <h3>Retry с exponential backoff</h3>
+            <div class="code-example">
+                <pre><code>async function retryWithBackoff(fn, maxRetries = 3, initialDelay = 1000) {
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            return await fn();
+        } catch (error) {
+            if (i === maxRetries - 1) throw error;
+            const delay = initialDelay * Math.pow(2, i);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+}
+
+await retryWithBackoff(async () => fetch('/data').then(r => r.json()));</code></pre>
+            </div>
+
+            <h2>Упражнения</h2>
+            <div class="exercise">
+                <strong>Упражнение 1:</strong> Преобразуйте Promise цепочку в async/await.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 2:</strong> Создайте функцию `asyncMap` которая применяет async функцию к массиву.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 3:</strong> Реализуйте функцию для обработки потока асинхронных данных с контролем параллелизма.
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="lesson-5.html">← Предыдущая</a>
+            <a href="lesson-7.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>

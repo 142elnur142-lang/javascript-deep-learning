@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 5: Promises - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 5
+            </div>
+            <h1>Promises (Промисы)</h1>
+            <p>Работа с промисами и обработка асинхронных операций</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Что такое Promise?</h2>
+            <p>Promise - это объект, который представляет результат асинхронной операции, которая может быть выполнена (resolved) или отклонена (rejected).</p>
+
+            <h2>Три состояния Promise</h2>
+            <div class="code-example">
+                <pre><code>// 1. Pending (ожидание) - начальное состояние
+const pending = new Promise((resolve, reject) => {
+    // операция выполняется
+});
+
+// 2. Resolved (выполнено) - успешно завершено
+const resolved = new Promise((resolve, reject) => {
+    resolve('Success!');
+});
+
+// 3. Rejected (отклонено) - завершено с ошибкой
+const rejected = new Promise((resolve, reject) => {
+    reject(new Error('Failed!'));
+});</code></pre>
+            </div>
+
+            <h2>Создание Promise</h2>
+            <div class="code-example">
+                <pre><code>const myPromise = new Promise((resolve, reject) => {
+    const success = true;
+    
+    if (success) {
+        resolve('Operation succeeded!');
+    } else {
+        reject(new Error('Operation failed!'));
+    }
+});
+
+// Promise можно использовать только один раз
+// resolve может быть вызвана либо reject, но не обе одновременно</code></pre>
+            </div>
+
+            <h2>then(), catch(), finally()</h2>
+            
+            <h3>then() - обработка успешного результата</h3>
+            <div class="code-example">
+                <pre><code>Promise.resolve('Hello')
+    .then((result) => {
+        console.log(result); // 'Hello'
+        return result + ' World';
+    })
+    .then((result) => {
+        console.log(result); // 'Hello World'
+    });</code></pre>
+            </div>
+
+            <h3>catch() - обработка ошибок</h3>
+            <div class="code-example">
+                <pre><code>Promise.reject(new Error('Oops!'))
+    .catch((error) => {
+        console.log(error.message); // 'Oops!'
+        return 'Error handled';
+    })
+    .then((result) => {
+        console.log(result); // 'Error handled'
+    });</code></pre>
+            </div>
+
+            <h3>finally() - выполнение в любом случае</h3>
+            <div class="code-example">
+                <pre><code>fetch('/data')
+    .then((response) => response.json())
+    .catch((error) => console.log(error))
+    .finally(() => {
+        console.log('Request completed (success or failure)');
+    });</code></pre>
+            </div>
+
+            <h2>Цепочки Promise</h2>
+            <div class="code-example">
+                <pre><code>function fetchUser(id) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ id, name: 'Alice' }), 1000);
+    });
+}
+
+function fetchPosts(userId) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve([{ id: 1, title: 'Post 1' }]), 1000);
+    });
+}
+
+fetchUser(1)
+    .then((user) => {
+        console.log('User:', user);
+        return fetchPosts(user.id);
+    })
+    .then((posts) => {
+        console.log('Posts:', posts);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });</code></pre>
+            </div>
+
+            <h2>Promise.all()</h2>
+            <p>Ждёт выполнения всех промисов. Если хотя бы один отклонен, всё отклоняется.</p>
+
+            <div class="code-example">
+                <pre><code>const promise1 = Promise.resolve(3);
+const promise2 = new Promise(resolve => setTimeout(() => resolve('foo'), 100));
+const promise3 = fetch('/data').then(r => r.json());
+
+Promise.all([promise1, promise2, promise3])
+    .then((results) => {
+        console.log(results); // [3, 'foo', { data }]
+    })
+    .catch((error) => {
+        console.log('One of the promises rejected');
+    });</code></pre>
+            </div>
+
+            <h2>Promise.allSettled()</h2>
+            <p>Ждёт выполнения всех промисов, независимо от результата (resolved или rejected).</p>
+
+            <div class="code-example">
+                <pre><code>const promises = [
+    Promise.resolve(1),
+    Promise.reject('Error'),
+    Promise.resolve(3)
+];
+
+Promise.allSettled(promises)
+    .then((results) => {
+        console.log(results);
+        // [
+        //   { status: 'fulfilled', value: 1 },
+        //   { status: 'rejected', reason: 'Error' },
+        //   { status: 'fulfilled', value: 3 }
+        // ]
+    });</code></pre>
+            </div>
+
+            <h2>Promise.race()</h2>
+            <p>Возвращает результат первого завершённого промиса.</p>
+
+            <div class="code-example">
+                <pre><code>const promise1 = new Promise((resolve) => setTimeout(() => resolve('First'), 100));
+const promise2 = new Promise((resolve) => setTimeout(() => resolve('Second'), 50));
+
+Promise.race([promise1, promise2])
+    .then((result) => {
+        console.log(result); // 'Second' (быстрее завершился)
+    });</code></pre>
+            </div>
+
+            <h2>Promise.any()</h2>
+            <p>Возвращает первый успешно выполненный промис. Отклоняется только если все отклонены.</p>
+
+            <div class="code-example">
+                <pre><code>const promises = [
+    Promise.reject('Error 1'),
+    Promise.reject('Error 2'),
+    Promise.resolve('Success')
+];
+
+Promise.any(promises)
+    .then((result) => {
+        console.log(result); // 'Success'
+    })
+    .catch((error) => {
+        // AggregateError: All promises were rejected
+    });</code></pre>
+            </div>
+
+            <h2>Практические примеры</h2>
+            
+            <h3>Загрузка данных с retry</h3>
+            <div class="code-example">
+                <pre><code>function fetchWithRetry(url, maxRetries = 3) {
+    return fetch(url)
+        .catch((error) => {
+            if (maxRetries > 1) {
+                return fetchWithRetry(url, maxRetries - 1);
+            }
+            throw error;
+        });
+}
+
+fetchWithRetry('/data')
+    .then(r => r.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Failed after retries:', error));</code></pre>
+            </div>
+
+            <h2>Упражнения</h2>
+            <div class="exercise">
+                <strong>Упражнение 1:</strong> Создайте Promise, который отклоняется после 2 секунд.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 2:</strong> Напишите функцию `timeout(promise, ms)` которая отклоняет промис если он не выполнен за время.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 3:</strong> Реализуйте функцию `retry(fn, times)` которая повторяет функцию при ошибке.
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="lesson-4.html">← Предыдущая</a>
+            <a href="lesson-6.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>

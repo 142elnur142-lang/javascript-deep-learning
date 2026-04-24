@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тема 3: This Context - JavaScript Deep Learning</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">📚 JS Deep Learning</h1>
+        </div>
+    </nav>
+
+    <div class="lesson-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> / Тема 3
+            </div>
+            <h1>This Context (Контекст This)</h1>
+            <p>Контекст выполнения this в различных ситуациях</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <article class="lesson-content">
+            <h2>Что такое this?</h2>
+            <p>Ключевое слово `this` - это специальный объект, на который ссылается контекст выполнения функции. Значение `this` зависит от способа вызова функции.</p>
+
+            <h2>1. Global Context</h2>
+            <p>В глобальном контексте `this` указывает на глобальный объект (window в браузере, global в Node.js).</p>
+
+            <div class="code-example">
+                <pre><code>console.log(this); // window (в браузере) или global (в Node.js)
+
+function globalFunction() {
+    console.log(this); // window или global
+}
+
+globalFunction();</code></pre>
+            </div>
+
+            <h2>2. Method Context</h2>
+            <p>Когда функция вызывается как метод объекта, `this` указывает на этот объект.</p>
+
+            <div class="code-example">
+                <pre><code>const user = {
+    name: 'Alice',
+    greet: function() {
+        console.log(`Hello, ${this.name}`); // this = user
+    }
+};
+
+user.greet(); // 'Hello, Alice'</code></pre>
+            </div>
+
+            <h2>3. Constructor Context</h2>
+            <p>Когда функция вызывается с оператором `new`, `this` указывает на новый создаваемый объект.</p>
+
+            <div class="code-example">
+                <pre><code>function Person(name) {
+    this.name = name; // this - новый объект
+}
+
+const person = new Person('Bob');
+console.log(person.name); // 'Bob'</code></pre>
+            </div>
+
+            <h2>4. Explicit Binding - call(), apply(), bind()</h2>
+            
+            <h3>call() - вызов с явным контекстом</h3>
+            <div class="code-example">
+                <pre><code>function greet(greeting) {
+    console.log(greeting + ', ' + this.name);
+}
+
+const user = { name: 'Alice' };
+greet.call(user, 'Hello'); // 'Hello, Alice'</code></pre>
+            </div>
+
+            <h3>apply() - вызов с массивом аргументов</h3>
+            <div class="code-example">
+                <pre><code>function sum(a, b, c) {
+    return a + b + c + this.bonus;
+}
+
+const context = { bonus: 10 };
+const result = sum.apply(context, [1, 2, 3]);
+console.log(result); // 16</code></pre>
+            </div>
+
+            <h3>bind() - создание функции с закреплённым контекстом</h3>
+            <div class="code-example">
+                <pre><code>function greet(greeting) {
+    console.log(greeting + ', ' + this.name);
+}
+
+const user = { name: 'Charlie' };
+const boundGreet = greet.bind(user, 'Hi');
+
+boundGreet(); // 'Hi, Charlie'
+
+// Также работает с частичным применением
+const boundGreet2 = greet.bind(user);
+boundGreet2('Hey'); // 'Hey, Charlie'</code></pre>
+            </div>
+
+            <h2>5. Arrow Functions</h2>
+            <p>Стрелочные функции НЕ имеют своего `this`. Они используют `this` из окружающей области видимости.</p>
+
+            <div class="code-example">
+                <pre><code>const user = {
+    name: 'Diana',
+    regularMethod: function() {
+        console.log(this.name); // 'Diana'
+        
+        const arrowFunction = () => {
+            console.log(this.name); // 'Diana' (наследует this от метода)
+        };
+        
+        arrowFunction();
+    }
+};
+
+user.regularMethod();</code></pre>
+            </div>
+
+            <div class="danger">
+                <strong>⚡ Опасность:</strong> Никогда не используйте стрелочные функции как методы объекта, если нужен доступ к свойствам объекта через `this`.
+            </div>
+
+            <h2>6. Потеря контекста (Context Loss)</h2>
+            <p>Частая проблема - потеря контекста при передаче метода как обработчика события.</p>
+
+            <div class="code-example">
+                <pre><code>const button = {
+    name: 'Click Me',
+    onClick: function() {
+        console.log(this.name);
+    }
+};
+
+// Проблема: потеря контекста
+const handler = button.onClick;
+handler(); // undefined (this = window/global)
+
+// Решение 1: Использовать bind
+document.addEventListener('click', button.onClick.bind(button));
+
+// Решение 2: Использовать стрелочную функцию
+document.addEventListener('click', () => button.onClick());</code></pre>
+            </div>
+
+            <h2>7. class Syntax</h2>
+            <p>В ES6 классах методы получают правильный контекст.</p>
+
+            <div class="code-example">
+                <pre><code>class User {
+    constructor(name) {
+        this.name = name;
+    }
+    
+    greet() {
+        console.log(`Hello, ${this.name}`);
+    }
+}
+
+const user = new User('Eve');
+const greet = user.greet;
+// greet(); // Ошибка: this = undefined в strict mode
+
+// Решение: использовать стрелочные функции
+class UserFixed {
+    constructor(name) {
+        this.name = name;
+        this.greet = () => {
+            console.log(`Hello, ${this.name}`);
+        };
+    }
+}
+
+const userFixed = new UserFixed('Frank');
+const greetFixed = userFixed.greet;
+greetFixed(); // 'Hello, Frank'</code></pre>
+            </div>
+
+            <h2>Практические примеры</h2>
+            
+            <h3>Event Listener с сохранением контекста</h3>
+            <div class="code-example">
+                <pre><code>class ClickCounter {
+    constructor() {
+        this.count = 0;
+        this.button = document.querySelector('button');
+        // Используем bind или стрелочную функцию
+        this.button.addEventListener('click', this.handleClick.bind(this));
+    }
+    
+    handleClick() {
+        this.count++;
+        console.log(`Clicked ${this.count} times`);
+    }
+}</code></pre>
+            </div>
+
+            <h2>Упражнения</h2>
+            <div class="exercise">
+                <strong>Упражнение 1:</strong> Создайте функцию `curry`, которая работает с `call` и `apply`.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 2:</strong> Напишите свою реализацию `bind()`.
+            </div>
+
+            <div class="exercise">
+                <strong>Упражнение 3:</strong> Создайте объект со методами и покажите различные способы потери контекста и как их избежать.
+            </div>
+        </article>
+
+        <div class="lesson-nav">
+            <a href="lesson-2.html">← Предыдущая</a>
+            <a href="lesson-4.html">Следующая →</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 JavaScript Deep Learning.</p>
+        </div>
+    </footer>
+</body>
+</html>
